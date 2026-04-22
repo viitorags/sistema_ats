@@ -12,14 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vacancies', function (Blueprint $table) {
-            $table->id();
+            $table->id('id');
+            $table->uuid('user_id');
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('location')->default('Não informado');
             $table->boolean('is_remote')->default(false);
             $table->boolean('active')->default(true);
-            $table->string('client_email')->default('');
             $table->timestamps();
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
         });
     }
 

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('interviews', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('user_id');
             $table->string('summary')->nullable();
             $table->text('description')->nullable();
             $table->string('location')->nullable();
@@ -21,6 +22,11 @@ return new class extends Migration
             $table->text('event_link')->nullable();
             $table->string('status')->nullable();
             $table->timestamp('created_at')->useCurrent();
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
         });
     }
 
