@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Traits\HasUniqueUuid;
 use Illuminate\Database\Eloquent\Model;
 
-class Interviews extends Model
+class Interview extends Model
 {
     use HasUniqueUuid;
 
