@@ -12,5 +12,6 @@ pkgs.mkShell {
     nodePackages.intelephense
     vtsls
     vscode-langservers-extracted
+    vue-language-server
   ];
 }
