@@ -18,7 +18,7 @@ class UserController extends Controller
 
         if (! $user || ! Hash::check($data['password'], $user->password)) {
             return response()->json([
-                'message' => 'Credenciais Inválidas'
+                'message' => 'Credenciais Inválidas',
             ], 401);
         }
 
@@ -30,6 +30,7 @@ class UserController extends Controller
         $data = $request->validated();
         $data['password'] = Hash::make($data['password']);
         $user = User::create($data);
+
         return new UserResource($user);
     }
 
@@ -42,12 +43,14 @@ class UserController extends Controller
         }
 
         $user->update($data);
+
         return new UserResource($user);
     }
 
     public function destroy(User $user)
     {
         $user->delete();
+
         return response()->json(['message' => 'Usuário excluido com sucesso'], 200);
     }
 }
