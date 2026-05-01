@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreResumeRequest;
 use App\Http\Requests\UpdateResumeRequest;
 use App\Http\Resources\ResumeResource;
+use App\Jobs\ProcessResumes;
 use App\Models\Resume;
 use Illuminate\Http\Request;
 
@@ -19,7 +20,13 @@ class ResumeController extends Controller
     public function store(StoreResumeRequest $request)
     {
         $data = $request->validated();
-        $resume = Resume::create($data);
+
+        $user_id = $request->user()->id();
+
+        $resumeData = new ProcessResumes($data, $user_id);
+
+        $resume = Resume::create($resumeData);
+
         return new ResumeResource($resume);
     }
 
