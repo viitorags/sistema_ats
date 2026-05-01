@@ -13,5 +13,6 @@ pkgs.mkShell {
     vtsls
     vscode-langservers-extracted
     vue-language-server
+    sqlite
   ];
 }
