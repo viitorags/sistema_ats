@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import { ShieldCheck } from 'lucide-vue-next';
 import { onUnmounted, ref } from 'vue';
-import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
@@ -12,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import { edit } from '@/routes/security';
+import { update as updatePassword } from '@/routes/user-password';
 import { disable, enable } from '@/routes/two-factor';
 
 type Props = {
@@ -31,7 +31,7 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Security settings',
-                href: edit(),
+                href: edit().url,
             },
         ],
     },
@@ -39,6 +39,32 @@ defineOptions({
 
 const { hasSetupData, clearTwoFactorAuthData } = useTwoFactorAuth();
 const showSetupModal = ref<boolean>(false);
+
+const form = useForm({
+    current_password: '',
+    password: '',
+    password_confirmation: '',
+});
+
+const submit = () => {
+    form.put(updatePassword().url, {
+        preserveScroll: true,
+        onSuccess: () => form.reset(),
+    });
+};
+
+const enable2FAForm = useForm({});
+const disable2FAForm = useForm({});
+
+const enable2FA = () => {
+    enable2FAForm.post(enable().url, {
+        onSuccess: () => (showSetupModal.value = true),
+    });
+};
+
+const disable2FA = () => {
+    disable2FAForm.delete(disable().url);
+};
 
 onUnmounted(() => clearTwoFactorAuthData());
 </script>
@@ -55,65 +81,52 @@ onUnmounted(() => clearTwoFactorAuthData());
             description="Ensure your account is using a long, random password to stay secure"
         />
 
-        <Form
-            v-bind="SecurityController.update.form()"
-            :options="{
-                preserveScroll: true,
-            }"
-            reset-on-success
-            :reset-on-error="[
-                'password',
-                'password_confirmation',
-                'current_password',
-            ]"
-            class="space-y-6"
-            v-slot="{ errors, processing }"
-        >
+        <form @submit.prevent="submit" class="space-y-6">
             <div class="grid gap-2">
                 <Label for="current_password">Current password</Label>
                 <PasswordInput
                     id="current_password"
-                    name="current_password"
+                    v-model="form.current_password"
                     class="mt-1 block w-full"
                     autocomplete="current-password"
                     placeholder="Current password"
                 />
-                <InputError :message="errors.current_password" />
+                <InputError :message="form.errors.current_password" />
             </div>
 
             <div class="grid gap-2">
                 <Label for="password">New password</Label>
                 <PasswordInput
                     id="password"
-                    name="password"
+                    v-model="form.password"
                     class="mt-1 block w-full"
                     autocomplete="new-password"
                     placeholder="New password"
                 />
-                <InputError :message="errors.password" />
+                <InputError :message="form.errors.password" />
             </div>
 
             <div class="grid gap-2">
                 <Label for="password_confirmation">Confirm password</Label>
                 <PasswordInput
                     id="password_confirmation"
-                    name="password_confirmation"
+                    v-model="form.password_confirmation"
                     class="mt-1 block w-full"
                     autocomplete="new-password"
                     placeholder="Confirm password"
                 />
-                <InputError :message="errors.password_confirmation" />
+                <InputError :message="form.errors.password_confirmation" />
             </div>
 
             <div class="flex items-center gap-4">
                 <Button
-                    :disabled="processing"
+                    :disabled="form.processing"
                     data-test="update-password-button"
                 >
                     Save password
                 </Button>
             </div>
-        </Form>
+        </form>
     </div>
 
     <div v-if="canManageTwoFactor" class="space-y-6">
@@ -137,16 +150,11 @@ onUnmounted(() => clearTwoFactorAuthData());
                 <Button v-if="hasSetupData" @click="showSetupModal = true">
                     <ShieldCheck />Continue setup
                 </Button>
-                <Form
-                    v-else
-                    v-bind="enable.form()"
-                    @success="showSetupModal = true"
-                    #default="{ processing }"
-                >
-                    <Button type="submit" :disabled="processing">
+                <form v-else @submit.prevent="enable2FA">
+                    <Button type="submit" :disabled="enable2FAForm.processing">
                         Enable 2FA
                     </Button>
-                </Form>
+                </form>
             </div>
         </div>
 
@@ -158,15 +166,15 @@ onUnmounted(() => clearTwoFactorAuthData());
             </p>
 
             <div class="relative inline">
-                <Form v-bind="disable.form()" #default="{ processing }">
+                <form @submit.prevent="disable2FA">
                     <Button
                         variant="destructive"
                         type="submit"
-                        :disabled="processing"
+                        :disabled="disable2FAForm.processing"
                     >
                         Disable 2FA
                     </Button>
-                </Form>
+                </form>
             </div>
 
             <TwoFactorRecoveryCodes />
