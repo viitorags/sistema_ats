@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Traits\HasUniqueUuid;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Resume extends Model
 {
-    use HasUniqueUuid;
+    use HasFactory, HasUniqueUuid;
+
+    protected $table = 'resume';
 
     protected $primaryKey = 'id';
 
@@ -23,6 +26,13 @@ class Resume extends Model
         'skills',
         'category',
         'processing_time_ms',
-        'user_id'
+        'user_id',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'skills' => 'array',
+        ];
+    }
 }

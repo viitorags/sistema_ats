@@ -14,20 +14,32 @@ class ResumeController extends Controller
     public function index(Request $request)
     {
         $resumes = Resume::where('user_id', $request->user()->id)->get();
+
         return ResumeResource::collection($resumes);
     }
 
     public function store(StoreResumeRequest $request)
     {
         $data = $request->validated();
+        $user_id = $request->user()->id;
 
-        $user_id = $request->user()->id();
-
-        $resumeData = new ProcessResumes($data, $user_id);
+        if ($request->hasFile('file')) {
+            $job = new ProcessResumes($data, $user_id, $request->user()->gemini_key);
+            $resumeData = $job->handle();
+        } else {
+            $skills = $data['skills'] ?? '';
+            $resumeData = array_merge($data, [
+                'user_id' => $user_id,
+                'score' => 0,
+                'technical_score' => 0,
+                'match_score' => 0,
+                'skills' => is_string($skills) ? array_map('trim', explode(',', $skills)) : $skills,
+            ]);
+        }
 
         $resume = Resume::create($resumeData);
 
-        return new ResumeResource($resume);
+        return redirect()->back();
     }
 
     public function show(Resume $resume)
@@ -39,12 +51,14 @@ class ResumeController extends Controller
     {
         $data = $request->validated();
         $resume->update($data);
-        return new ResumeResource($resume);
+
+        return redirect()->back();
     }
 
     public function destroy(Resume $resume)
     {
         $resume->delete();
-        return response()->json(['message' => 'Currículo excluído com sucesso'], 200);
+
+        return redirect()->back();
     }
 }

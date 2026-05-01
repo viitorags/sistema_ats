@@ -13,14 +13,16 @@ class InterviewController extends Controller
     public function index(Request $request)
     {
         $interviews = Interview::where('user_id', $request->user()->id)->get();
+
         return InterviewResource::collection($interviews);
     }
 
     public function store(StoreInterviewRequest $request)
     {
         $data = $request->validated();
-        $interview = Interview::create($data);
-        return new InterviewResource($interview);
+        Interview::create($data);
+
+        return redirect()->back();
     }
 
     public function show(Interview $interview)
@@ -32,12 +34,14 @@ class InterviewController extends Controller
     {
         $data = $request->validated();
         $interview->update($data);
-        return new InterviewResource($interview);
+
+        return redirect()->back();
     }
 
     public function destroy(Interview $interview)
     {
         $interview->delete();
-        return response()->json(['message' => 'Entrevista excluída com sucesso'], 200);
+
+        return redirect()->back();
     }
 }

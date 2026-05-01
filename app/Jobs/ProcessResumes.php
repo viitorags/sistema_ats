@@ -14,13 +14,16 @@ class ProcessResumes implements ShouldQueue
 
     protected $user_id;
 
+    protected $apiKey;
+
     /**
      * Create a new job instance.
      */
-    public function __construct($resumeData, $user_id)
+    public function __construct($resumeData, $user_id, $apiKey)
     {
         $this->resumeData = $resumeData;
         $this->user_id = $user_id;
+        $this->apiKey = $apiKey;
     }
 
     /**
@@ -28,7 +31,7 @@ class ProcessResumes implements ShouldQueue
      */
     public function handle(): array
     {
-        $gemini = new GeminiService;
+        $gemini = new GeminiService($this->apiKey);
 
         $file = $this->resumeData['file'];
 

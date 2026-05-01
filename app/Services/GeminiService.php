@@ -11,9 +11,14 @@ class GeminiService
 
     private const MODEL = 'gemini-2.5-flash';
 
-    public function __construct()
+    public function __construct(?string $apiKey = null)
     {
-        $this->apiKey = config('services.gemini.key') ?? env('GEMINI_API_KEY') ?? '';
+        $this->apiKey = $apiKey ?? config('services.gemini.key') ?? env('GEMINI_API_KEY') ?? '';
+    }
+
+    public function setApiKey(string $apiKey): void
+    {
+        $this->apiKey = $apiKey;
     }
 
     public function analyzeResume(string $fileContent, string $mimeType, ?string $targetCategory = null): array

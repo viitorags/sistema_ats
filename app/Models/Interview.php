@@ -3,13 +3,16 @@
 namespace App\Models;
 
 use App\Traits\HasUniqueUuid;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Interview extends Model
 {
-    use HasUniqueUuid;
+    use HasFactory, HasUniqueUuid;
 
-    protected $primaryKey = "id";
+    protected $primaryKey = 'id';
+
+    const UPDATED_AT = null;
 
     protected $fillable = [
         'summary',

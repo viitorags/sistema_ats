@@ -13,14 +13,16 @@ class VacancieController extends Controller
     public function index(Request $request)
     {
         $vacancies = Vacancie::where('user_id', $request->user()->id)->get();
+
         return VacancieResource::collection($vacancies);
     }
 
     public function store(StoreVacancieRequest $request)
     {
         $data = $request->validated();
-        $vacancie = Vacancie::create($data);
-        return new VacancieResource($vacancie);
+        Vacancie::create($data);
+
+        return redirect()->back();
     }
 
     public function show(Vacancie $vacancie)
@@ -32,12 +34,14 @@ class VacancieController extends Controller
     {
         $data = $request->validated();
         $vacancie->update($data);
-        return new VacancieResource($vacancie);
+
+        return redirect()->back();
     }
 
     public function destroy(Vacancie $vacancie)
     {
         $vacancie->delete();
-        return response()->json(['message' => 'Vaga excluída com sucesso'], 200);
+
+        return redirect()->back();
     }
 }

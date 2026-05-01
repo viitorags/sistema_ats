@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use App\Traits\HasUniqueUuid;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Vacancie extends Model
 {
-    use HasUniqueUuid;
+    use HasFactory;
 
     protected $primaryKey = 'id';
 
@@ -17,6 +17,6 @@ class Vacancie extends Model
         'location',
         'is_remote',
         'active',
-        'user_id'
+        'user_id',
     ];
 }
